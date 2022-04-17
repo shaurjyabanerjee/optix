@@ -1,0 +1,42 @@
+TODO
+
+* implement position control
+    - keep track of current "step position" in both directions
+    - accept a "desired position" from a setter method
+    - decide whether to send step pulses (and the state of the DIR pin) based on whether the desired position has been reached
+
+* implement serial protocol (see below)
+
+
+//-------------------------------------------------------------------------------- 
+// packet structure
+// look at PacketSerial library: https://github.com/bakercp/PacketSerial
+
+// then define enumerated opcodes for whatever operations we want the computer to tell the microcontroller to do
+
+enum operations {
+    HOME = 1,
+    SET_DESIRED_POS = 2,
+
+};
+
+  if (packetSerial.hasPacket()) {
+    int operation = packet.get(0);
+
+
+    switch (operation) {
+    case HOME:
+        int motorIndex = packet.get(1);
+        motors[motorIndex].resetPosition();
+
+
+        break;
+    case SET_DESIRED_POS:
+        
+        int motorIndex = packet.get(1);
+        int desired_ = packet.get(2);
+
+        motors[motorIndex].setDesiredPosition(desired_);
+        break;
+
+  }
