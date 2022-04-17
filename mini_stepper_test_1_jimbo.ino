@@ -1,9 +1,7 @@
 struct stepper_pin_config {
     int dir;
     int step;
-
-    // long int step_time = 0;
-    bool step_state;
+    int speed_div;
 
     stepper_pin_config(int dir_, int step_)
     {
@@ -11,34 +9,27 @@ struct stepper_pin_config {
       step = step_;
     }
 
-    void init()
+    void init(int speed_)
     {
       pinMode(dir, OUTPUT);  
       pinMode(step, OUTPUT); 
-              digitalWrite(dir, HIGH);
+      digitalWrite(dir, HIGH);
+      speed_div = speed_;
  
     }
 
-    void update(/*int steps_desired*/)
+    void update()
     {
-        // divide microsecond counter by 2048, to get
-        // aproximately 2.048ms
-        long int _micros = micros();
-        if ((_micros >> 11) & 1)
-          step_state = !step_state;
-
-        if (1) {
-            if (step_state) {
-                digitalWrite(this->step, HIGH);
-            } else {
-                digitalWrite(this->step, LOW);
-
-            }
-        }
+      // TODO: put position control logic in here
+    
+      if ((micros() >> speed_div) & 1)
+        digitalWrite(step, HIGH);
+      else
+        digitalWrite(step, LOW);
+            
     }
 };
 
-constexpr float deg_per_step = 1.6;
 constexpr int num_motors = 15;
 stepper_pin_config motors[num_motors] = {
 
@@ -52,7 +43,6 @@ stepper_pin_config motors[num_motors] = {
     { 46, 47 },
     { 48, 49 },
     { 50, 51 },
-
     { 52, 53 },
 
     { 22, 23 },
@@ -62,41 +52,16 @@ stepper_pin_config motors[num_motors] = {
     { 30, 31 },
 };
 
-int num_steps = 450;
-int step_delay = 1800;
-
 void setup() 
 {
   for (int i = 0; i < num_motors; i++ )
-    motors[i].init();
+    // NOTE: init function sets the speed right now, but it should maybe go to the update() instead
+    motors[i].init(15);
 }
 
 void loop() 
 {
   for (int i = 0; i < num_motors; i++ ) {
-    yield();
-    // cool one that i havent written yet
     motors[i].update();
-  }
-}
-
-void spin(stepper_pin_config& motor_, int num_steps_)
-{
-  digitalWrite(motor_.dir, HIGH);
-  for (int i = 0; i < num_steps_; i++)
-  {
-    digitalWrite(motor_.step, HIGH);
-    delayMicroseconds(step_delay);
-    digitalWrite(motor_.step, LOW);
-    delayMicroseconds(step_delay);
-  }
-
-  digitalWrite(motor_.dir, LOW);
-  for (int i = 0; i < num_steps_; i++)
-  {
-    digitalWrite(motor_.step, HIGH);
-    delayMicroseconds(step_delay);
-    digitalWrite(motor_.step, LOW);
-    delayMicroseconds(step_delay);
   }
 }
