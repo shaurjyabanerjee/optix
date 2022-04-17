@@ -67,23 +67,22 @@ int step_delay = 1800;
 
 void setup() 
 {
-  for (int i = 0; i < num_motors; i++ ) {
-    pinMode(motors[i].dir, OUTPUT);  
-    pinMode(motors[i].step, OUTPUT);  
-  }
-
+  for (int i = 0; i < num_motors; i++ )
+    motors[i].init();
 }
 
 void loop() 
 {
-  for (int i = 0; i < num_motors; i++ )
-   spin(motors[i], num_steps);
+  for (int i = 0; i < num_motors; i++ ) {
+    yield();
+    // cool one that i havent written yet
+    motors[i].update();
+  }
 }
 
 void spin(stepper_pin_config& motor_, int num_steps_)
 {
-
-    digitalWrite(motor_.dir, HIGH);
+  digitalWrite(motor_.dir, HIGH);
   for (int i = 0; i < num_steps_; i++)
   {
     digitalWrite(motor_.step, HIGH);
